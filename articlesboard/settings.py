@@ -16,15 +16,15 @@ ALLOWED_HOSTS = ['127.0.0.1', 'articlesboard.herokuapp.com', '0.0.0.0']
 
 # Email settings
 
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp.yandex.ru'
-# EMAIL_PORT = 25
-# EMAIL_HOST_USER = 'example@yandex.ru'
-# EMAIL_HOST_PASSWORD = 'W123456'
-# DEFAULT_FROM_EMAIL = 'fromexample@yandex.ru'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'grobivanovich@yandex.ru'
+EMAIL_HOST_PASSWORD = '22MeHaRa00431@'
+DEFAULT_FROM_EMAIL = 'fromexample@yandex.ru'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Application definition
 
