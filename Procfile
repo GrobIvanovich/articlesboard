@@ -1,0 +1,1 @@
+web: gunicorn articlesboard.wsgi --log-file -
