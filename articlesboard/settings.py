@@ -29,8 +29,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Application definition
 
 INSTALLED_APPS = [
-    'dal',
-    'dal_select2',
     'tagging',
     'tagging_autocomplete_new',
     'django_countries',
