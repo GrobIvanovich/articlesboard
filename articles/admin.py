@@ -24,18 +24,22 @@ admin.site.register(Gender, GenderAdmin)
 
 # User admin panel.
 class AdvUserAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'is_activated', 'date_joined')
+    list_display = ('__str__', 'company', 'is_activated', 'date_joined')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     fields = (('username', 'email'),
               'gender',
               ('first_name', 'last_name'),
               ('account_image', 'account_image_url', 'admin_image'),
+              'company',
+              'activity',
               'country', 'city',
               'bdate',
               'fb_url',
               'tw_url',
               'vk_url',
               'ok_url',
+              'bio',
+              'status',
               'user_subscriptions',
               'tags_subscriptions',
               'rating',
