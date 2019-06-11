@@ -21,7 +21,7 @@ EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'grobivanovich@yandex.ru'
 EMAIL_HOST_PASSWORD = '22MeHaRa00431@'
-DEFAULT_FROM_EMAIL = 'fromexample@yandex.ru'
+DEFAULT_FROM_EMAIL = 'grobivanovich@yandex.ru'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
