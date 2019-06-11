@@ -59,6 +59,7 @@ class ChangeUserInfoForm(forms.ModelForm):
                   'company',
                   'bio',
                   'status',
+                  'activity',
                 #   'gender',
                 #   'account_image', 'account_image_url',
                   'country', 'city',
@@ -68,7 +69,7 @@ class ChangeUserInfoForm(forms.ModelForm):
         )
 
 
-class ChangeUserProfilePictureForm(forms.ModelForm):
+class ChangeUserAdditionalInfoForm(forms.ModelForm):
     
     class Meta:
         model = AdvUser
