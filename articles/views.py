@@ -201,11 +201,12 @@ def search_by_category(request, category_name):
 @login_required
 def update_user_status(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
+    print(f'got message {request.POST["status"]}')
     if request.method == 'POST':
         status = request.POST['status']
         user.status = status
         user.save()
-    return HttpResponseRedirect(reverse_lazy(request.META.get('HTTP_REFERER')))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 # Add article page view.
@@ -338,9 +339,6 @@ class ARegisterUserView(CreateView):
     form_class = ARegisterUserForm
     success_url = reverse_lazy('articles:register_done')
     
-    def get(self, request):
-        return render(request, self.template_name, {'site_name': SITE_NAME})
-    
     
 # When user activated.
 class ARegisterDoneView(TemplateView):
@@ -355,7 +353,6 @@ class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     
     model = AdvUser
     template_name = 'articles/user_actions/change_user_info.html'
-    # form_class = ChangeUserInfoForm
     
     def dispatch(self, request, username, *args, **kwargs):
         self.user = get_object_or_404(AdvUser, username=username)
