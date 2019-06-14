@@ -1,4 +1,8 @@
 import os
+import django_heroku
+import dj_database_url
+# import psycopg2.extensions
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -10,9 +14,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'i+j!kxzy0=v1k@8g)8hl(%w=f&7d!glt_5t_e4w6z@&sbo4^6w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['articlesboard.herokuapp.com', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['articlesboard.herokuapp.com', '127.0.0.1']
 
 # Email settings
 
@@ -82,10 +86,25 @@ WSGI_APPLICATION = 'articlesboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+DATABASES = {}
+
+# DATABASES['default'] = dj_database_url.config(engine='django.db.backends.postgresql')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'default',                      
+        'USER': 'django',
+        'PASSWORD': 'q1w2e3R$',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -122,6 +141,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+# SITE_ID = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -137,3 +157,5 @@ SITE_NAME = 'ArticlesSite'
 TAGGING_AUTOCOMPLETE_SEARCH_CONTAINS = True
 
 TAGGING_AUTOCOMPLETE_MIN_LENGTH = 1
+
+django_heroku.settings(locals())
