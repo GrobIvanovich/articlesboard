@@ -30,15 +30,10 @@ from .forms import DeleteArticleForm, EditArticleForm, ChangeUserAdditionalInfoF
 from .utilities import signer
 
 
-# Popular articles.
-rate_articles = Article.objects.order_by('-rating').filter(is_active=True)[:10]
-
-
 # Main page view.
 def index(request):
     last_articles = Article.objects.filter(is_active=True)
     # Refreshing popular articles.
-    rate_articles = Article.objects.order_by('-rating').filter(is_active=True)[:10]
     context = {'last_articles': last_articles, 'rate_articles': rate_articles}# 'site_name': SITE_NAME}
     return render(request, 'articles/index.html', context)
 
@@ -67,7 +62,11 @@ def profile(request, username=None):
     if username is None:
         username = request.user.username
     user = get_object_or_404(AdvUser, username=username)
-    context = {'user': user, 'rate_articles': rate_articles, 'site_name': SITE_NAME}
+    subscribers_objs = user.user_subscriptions.all()
+    subs = []
+    for sub in subscribers_objs:
+        subs.append(sub.username)
+    context = {'user': user, 'rate_articles': rate_articles, 'subscribers': subs}
     return render(request, 'articles/user_actions/profile.html', context)
 
 
@@ -113,6 +112,12 @@ def subscribe_user(request, username):
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def notificate_user(sender, user):
+    user.notifications.add(f'{sender.username} теперь подписан на Вас!')
+
+
 
 
 # When user cancels subscription on other user.
@@ -201,10 +206,19 @@ def search_by_category(request, category_name):
 @login_required
 def update_user_status(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
-    print(f'got message {request.POST["status"]}')
     if request.method == 'POST':
         status = request.POST['status']
         user.status = status
+        user.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def update_account_image_url(request):
+    user = get_object_or_404(AdvUser, pk=request.user.pk)
+    if request.method == 'POST':
+        image_url = request.POST['account_image_url']
+        user.account_image_url = image_url
         user.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
