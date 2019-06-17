@@ -53,17 +53,7 @@ class Category (models.Model):
         ordering = ('order', 'name')
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        
-
-class Notification(models.Model):
-    content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
-    viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
-    name = models.CharField(max_length=20, default='', verbose_name='Название')
-    
-    class Meta:
-        verbose_name = 'Уведомление'
-        verbose_name_plural = 'Уведомления'
-    
+ 
 
 # User model.
 class AdvUser (AbstractUser):
@@ -87,7 +77,6 @@ class AdvUser (AbstractUser):
     user_subscriptions = models.ManyToManyField('self', related_name='user_subscriptions', blank=True, verbose_name='Подписки на пользователей')
     tags_subscriptions = models.ManyToManyField(Tag, related_name='tags_subscriptions', blank=True, verbose_name='Подписки на теги')
     cat_subscriptions = models.ManyToManyField(Category, related_name='cat_subscriptions', blank=True, verbose_name='Подписки на категории')
-    notifications = models.ManyToManyField(Notification, related_name='notifications', blank=True, verbose_name='Уведомления')
     # User's rating.
     rating = models.IntegerField(default=0, verbose_name='Рейтинг')
     # System.
@@ -130,6 +119,17 @@ class AdvUser (AbstractUser):
     class Meta :
        verbose_name = 'Пользователь'
        verbose_name_plural = 'Пользователи'
+
+
+class Notifications(models.Model):
+    user = models.ForeignKey(AdvUser, default=None, blank=True, null= True, on_delete=models.CASCADE, verbose_name='Пользователь')
+    content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
+    viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
+    n_type = models.CharField(max_length=20, default='', verbose_name='Название')
+    
+    class Meta:
+        verbose_name = 'Уведомление'
+        verbose_name_plural = 'Уведомления'
 
 
 # Article model.

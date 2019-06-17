@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from articlesboard.settings import SITE_NAME
 from django.urls import reverse_lazy
 from django.core.signing import BadSignature
@@ -20,11 +20,11 @@ from django.views.generic.detail import DetailView
 from django.utils import timezone
 from django.forms import ValidationError
 from django.core.paginator import Paginator
-
+import json
 from tagging.models import TaggedItem, Tag
 from tagging_autocomplete_new.models import TagAutocomplete
 
-from .models import AdvUser, Category, Article
+from .models import AdvUser, Category, Article, Notifications
 from .forms import ARegisterUserForm, ChangeUserInfoForm, ArticleForm, ArticleFormSet
 from .forms import DeleteArticleForm, EditArticleForm, ChangeUserAdditionalInfoForm
 from .utilities import signer
@@ -107,15 +107,10 @@ def subscribe_user(request, username):
     # If user not subscribed.
     if user not in request.user.user_subscriptions.all():
         request.user.subscribe_user(user)
+        update_user_notifications(request, user, 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def notificate_user(sender, user):
-    user.notifications.add(f'{sender.username} теперь подписан на Вас!')
-
-
 
 
 # When user cancels subscription on other user.
@@ -125,6 +120,7 @@ def unsubscribe_user(request, username):
     # If user already subscribed.
     if user in request.user.user_subscriptions.all():
         request.user.unsubscribe_user(user)
+        # notificate_user(user, f'{request.user.username} отписался от Ваших обновлений!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы не подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -219,6 +215,19 @@ def update_account_image_url(request):
         user.account_image_url = image_url
         user.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def update_user_notifications(request, user: AdvUser, n_type: str, msg: str):
+    ntf = Notifications.objects.create(user=user, n_type=n_type, content=msg)
+    ntf.save()
+
+
+def notify_user(request):
+    notifications = Notifications.objects.filter(user=request.user).values('n_type', 'content')
+    print(notifications)
+    ntf = json.dumps(list(notifications))
+    return JsonResponse({'notifications': ntf})
 
 
 # Add article page view.
