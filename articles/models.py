@@ -58,6 +58,7 @@ class Category (models.Model):
 class Notification(models.Model):
     content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
     viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
+    name = models.CharField(max_length=20, default='', verbose_name='Название')
     
     class Meta:
         verbose_name = 'Уведомление'

@@ -184,7 +184,7 @@ def search_by_tag(request, tag):
         page_num = 1
     page = paginator.get_page(page_num)
     tag = Tag.objects.get(name=tag)
-    context = {articles': page.object_list, 'page': page, 'tag': tag}
+    context = {'articles': page.object_list, 'page': page, 'tag': tag}
     return render(request, 'articles/search.html', context)
 
 
