@@ -24,6 +24,8 @@ import json
 from tagging.models import TaggedItem, Tag
 from tagging_autocomplete_new.models import TagAutocomplete
 
+from datetime import datetime
+
 from .models import AdvUser, Category, Article, Notifications
 from .forms import ARegisterUserForm, ChangeUserInfoForm, ArticleForm, ArticleFormSet
 from .forms import DeleteArticleForm, EditArticleForm, ChangeUserAdditionalInfoForm
@@ -107,7 +109,8 @@ def subscribe_user(request, username):
     # If user not subscribed.
     if user not in request.user.user_subscriptions.all():
         request.user.subscribe_user(user)
-        update_user_notifications(request, user, 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
+        host_name = request.META.get('HTTP_HOST')
+        update_user_notifications(request, user, f'/accounts/profile/{request.user.username}', 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -170,7 +173,7 @@ def unsubscribe_category(request, category_name):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-# When user clicks on tag.
+# Show search by tag results. (When user clicks on tag).
 def search_by_tag(request, tag):
     articles = Article.objects.filter(tags__contains=tag)
     paginator = Paginator(articles, 9)
@@ -184,6 +187,7 @@ def search_by_tag(request, tag):
     return render(request, 'articles/search.html', context)
 
 
+# Shows search by category results. (When user clicks on category).
 def search_by_category(request, category_name):
     category = Category.objects.get(name=category_name)
     articles = Article.objects.filter(category=category)
@@ -197,6 +201,7 @@ def search_by_category(request, category_name):
     return render(request, 'articles/search.html', context)
 
 
+# AJAX based function for updating status message.
 @login_required
 def update_user_status(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
@@ -207,6 +212,7 @@ def update_user_status(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# AJAX based function for updating account_image_url.
 @login_required
 def update_account_image_url(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
@@ -217,18 +223,24 @@ def update_account_image_url(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# User calls this function when subscribe or unsubscribe on something.
 @login_required
-def update_user_notifications(request, user: AdvUser, n_type: str, msg: str):
-    ntf = Notifications.objects.create(user=user, n_type=n_type, content=msg)
+def update_user_notifications(request, user: AdvUser, sender: str, n_type: str, msg: str):
+    ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
     ntf.save()
 
 
+# AJAX calls this function periodically.
 def notify_user(request):
-    notifications = Notifications.objects.filter(user=request.user, sent=False).values('n_type', 'content', 'sent')
-    # print(notifications)
+    notifications = Notifications.objects.filter(user=request.user).order_by('-id')[0:4]
+    
+    # Convert notifications to JSON format.
+    ntf = json.dumps(list(notifications.values('n_type', 'content', 'sender', 'viewed', 'created_at')))
     for n in notifications:
-        n['sent'] = True
-    ntf = json.dumps(list(notifications))
+        if not n.sent:
+            n.sent = True
+            n.save()
+
     return JsonResponse({'notifications': ntf})
 
 

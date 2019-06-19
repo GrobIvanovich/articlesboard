@@ -1,10 +1,29 @@
-$(document).ready(function() {
+// $(document).ready(function() {
     $.ajaxSetup({ cache: false }); // This part addresses an IE bug.  without it, IE will only load the first number and will never refresh
     setInterval(function() {
-        $.get('{% url "articles:notify_user" %}', function(data) {
+        $.get('/accounts/profile/notifyuser', function(data) {
+        	$('#notificationsBlock').html('');
             $.each($.parseJSON(data.notifications), function(index, element) {
-                $('#notificationsBlock').append('<a class="dropdown-item" href="javascript:void(0)">' + element.n_type + '</a>');
+            	$.each($('#notificationsBlock').children(), function(ch_index, child){
+            		if (element.content == $(child + ' #notificationsContent').html()){
+            			
+            		}
+            	});
+            	console.log(element.sender);
+                $('#notificationsBlock').html(
+                	'<a class="dropdown-item" href="' + element.sender + '/">' +
+	                	'<div class="row">' + 
+	                		element.n_type + 
+                		'</div>' +
+	                	'<div class="row" name="notificationsContent">' + 
+	                		'<div style="display: none">' + element.content + '</div>' +
+	            		'</div>' +
+	            		'<div class="row">' +
+	                		'<small>' + element.created_at + '</small>' + 
+	            		'</div>'+
+                	'</a>'
+                	);
             });
         });
     }, 3000); // the "3000" 
-});
+// });

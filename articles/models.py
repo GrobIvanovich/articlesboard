@@ -123,6 +123,8 @@ class AdvUser (AbstractUser):
 
 class Notifications(models.Model):
     user = models.ForeignKey(AdvUser, default=None, blank=True, null= True, on_delete=models.CASCADE, verbose_name='Пользователь')
+    sender = models.URLField(default='', verbose_name='Ссылка на отправителя (пользователь, категория, тег и т.д.)')
+    created_at = models.CharField(default='', max_length=30, verbose_name='Дата создания уведомления')
     content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
     viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
     n_type = models.CharField(max_length=20, default='', verbose_name='Название')
