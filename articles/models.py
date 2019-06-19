@@ -116,6 +116,13 @@ class AdvUser (AbstractUser):
         self.cat_subscriptions.remove(category)
         self.save()
 
+    def change_rating(self, rating: int, articles):
+        total_rating = 0
+        for article in articles:
+            total_rating += article.rating
+        self.rating = round(total_rating/len(articles), 0)
+        self.save()
+
     class Meta :
        verbose_name = 'Пользователь'
        verbose_name_plural = 'Пользователи'

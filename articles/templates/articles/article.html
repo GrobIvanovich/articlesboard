@@ -5,6 +5,7 @@
 {% block title %}{{ article.title }} - {{ article.category.name }}{% endblock %}
 
 {% block content%}
+<a href="{% url 'articles:change_rating' rating=5 pk=article.pk %}">+5</a>
 <div class="card text-center">
 	<div class="card-header">
 		<img src="https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.stack.imgur.com%2FdLtpP.png&f=1">

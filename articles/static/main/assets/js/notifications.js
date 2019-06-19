@@ -6,7 +6,7 @@
             $.each($.parseJSON(data.notifications), function(index, element) {
             	$.each($('#notificationsBlock').children(), function(ch_index, child){
             		if (element.content == $(child + ' #notificationsContent').html()){
-            			
+            			// ???
             		}
             	});
             	console.log(element.sender);

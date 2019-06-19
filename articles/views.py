@@ -74,9 +74,12 @@ def profile(request, username=None):
 
 # When user press rating button.
 @login_required
-def change_rating(request, rating, pk):
+def change_rating(request, rating: int, pk):
     article = Article.objects.get(pk=pk)
+    user = AdvUser.objects.get(username=article.author.username)
     if request.user not in article.rated_users.all():
+        user_articles = Article.objects.filter(author=user)
+        user.change_rating(rating, user_articles)
         article.change_rating(rating, request.user)
         messages.add_message(request, messages.SUCCESS, 'Спасибо! Ваш голос учтен.')
     else:
