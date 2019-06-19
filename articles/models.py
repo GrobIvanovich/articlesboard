@@ -53,16 +53,7 @@ class Category (models.Model):
         ordering = ('order', 'name')
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        
-
-class Notification(models.Model):
-    content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
-    viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
-    
-    class Meta:
-        verbose_name = 'Уведомление'
-        verbose_name_plural = 'Уведомления'
-    
+ 
 
 # User model.
 class AdvUser (AbstractUser):
@@ -86,7 +77,6 @@ class AdvUser (AbstractUser):
     user_subscriptions = models.ManyToManyField('self', related_name='user_subscriptions', blank=True, verbose_name='Подписки на пользователей')
     tags_subscriptions = models.ManyToManyField(Tag, related_name='tags_subscriptions', blank=True, verbose_name='Подписки на теги')
     cat_subscriptions = models.ManyToManyField(Category, related_name='cat_subscriptions', blank=True, verbose_name='Подписки на категории')
-    notifications = models.ManyToManyField(Notification, related_name='notifications', blank=True, verbose_name='Уведомления')
     # User's rating.
     rating = models.IntegerField(default=0, verbose_name='Рейтинг')
     # System.
@@ -126,9 +116,30 @@ class AdvUser (AbstractUser):
         self.cat_subscriptions.remove(category)
         self.save()
 
+    def change_rating(self, rating: int, articles):
+        total_rating = 0
+        for article in articles:
+            total_rating += article.rating
+        self.rating = round(total_rating/len(articles), 0)
+        self.save()
+
     class Meta :
        verbose_name = 'Пользователь'
        verbose_name_plural = 'Пользователи'
+
+
+class Notifications(models.Model):
+    user = models.ForeignKey(AdvUser, default=None, blank=True, null= True, on_delete=models.CASCADE, verbose_name='Пользователь')
+    sender = models.URLField(default='', verbose_name='Ссылка на отправителя (пользователь, категория, тег и т.д.)')
+    created_at = models.CharField(default='', max_length=30, verbose_name='Дата создания уведомления')
+    content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
+    viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
+    n_type = models.CharField(max_length=20, default='', verbose_name='Название')
+    sent = models.BooleanField(default=False, verbose_name='Было ли это уведомление отправлено пользователю?')
+    
+    class Meta:
+        verbose_name = 'Уведомление'
+        verbose_name_plural = 'Уведомления'
 
 
 # Article model.
