@@ -224,8 +224,10 @@ def update_user_notifications(request, user: AdvUser, n_type: str, msg: str):
 
 
 def notify_user(request):
-    notifications = Notifications.objects.filter(user=request.user).values('n_type', 'content')
-    print(notifications)
+    notifications = Notifications.objects.filter(user=request.user, sent=False).values('n_type', 'content', 'sent')
+    # print(notifications)
+    for n in notifications:
+        n['sent'] = True
     ntf = json.dumps(list(notifications))
     return JsonResponse({'notifications': ntf})
 
