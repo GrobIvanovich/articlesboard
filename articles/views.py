@@ -34,7 +34,14 @@ from .utilities import signer
 
 # Main page view.
 def index(request):
-    last_articles = Article.objects.filter(is_active=True)
+    if request.user.is_authenticated:
+        subscriptions = request.user.user_subscriptions.all()
+        last_articles = []
+        for sub in subscriptions:
+            articles = Article.objects.filter(author=sub, is_active=True).order_by('-created_at')[0:9]
+            last_articles += articles
+    else:
+        last_articles = Article.objects.filter(is_active=True)
     # Refreshing popular articles.
     context = {'last_articles': last_articles}# 'site_name': SITE_NAME}
     return render(request, 'articles/index.html', context)
