@@ -37,6 +37,14 @@
     <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="{% static 'main/assets/js/material-dashboard.js' %}"></script>
     <script src="{% static 'main/assets/js/notifications.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('a .ntf').on('mouseover', function() {
+                console.log('a');
+                // $('#notificationsList li .row').slideDown('fast');
+            });
+        });
+    </script>
 </head>
 
 <body class="dark-edition">
@@ -132,6 +140,7 @@
                                 </p>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink" id="notificationsBlock">
+                                <ul class="list-unstyled" id="notificationsList"></ul>
                                 <!-- <a class="dropdown-item" href="javascript:void(0)">Mike John responded to your email</a>
                                 <a class="dropdown-item" href="javascript:void(0)">You have 5 new tasks</a>
                                 <a class="dropdown-item" href="javascript:void(0)">You're now friend with Andrew</a>

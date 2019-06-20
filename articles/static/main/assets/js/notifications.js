@@ -1,29 +1,14 @@
-// $(document).ready(function() {
-    $.ajaxSetup({ cache: false }); // This part addresses an IE bug.  without it, IE will only load the first number and will never refresh
-    setInterval(function() {
-        $.get('/accounts/profile/notifyuser', function(data) {
-        	$('#notificationsBlock').html('');
-            $.each($.parseJSON(data.notifications), function(index, element) {
-            	$.each($('#notificationsBlock').children(), function(ch_index, child){
-            		if (element.content == $(child + ' #notificationsContent').html()){
-            			// ???
-            		}
-            	});
-            	console.log(element.sender);
-                $('#notificationsBlock').html(
-                	'<a class="dropdown-item" href="' + element.sender + '/">' +
-	                	'<div class="row">' + 
-	                		element.n_type + 
-                		'</div>' +
-	                	'<div class="row" name="notificationsContent">' + 
-	                		'<div style="display: none">' + element.content + '</div>' +
-	            		'</div>' +
-	            		'<div class="row">' +
-	                		'<small>' + element.created_at + '</small>' + 
-	            		'</div>'+
-                	'</a>'
-                	);
-            });
+$(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+    $.get('/accounts/profile/notifyuser', function(data) {
+        // $('#notificationsBlock').html('<ul class="list-unstyled" id="notificationsList"></ul>');
+        var count = 0;
+        $.each($.parseJSON(data.notifications), function(index, element) {
+        	// console.log(element.sender);
+           
+            $('#notificationsList').append('<li><a class="btn btn-primary ntf" href="' + element.sender + '">' + element.n_type + '</a><div style="display:none" class="row">' + element.content + '</div></li>')
+            count++;
         });
-    }, 3000); // the "3000" 
-// });
+        $('.notification').html(count);
+    });
+});
