@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AdvUser, Category, Article, Gender
+from .models import AdvUser, Category, Article, Gender, Notifications
 
 
 def activate_articles(modeladmin, request, queryset):
@@ -8,6 +8,8 @@ def activate_articles(modeladmin, request, queryset):
         if not rec.is_active:
             rec.is_active = True
             rec.save()
+            notification = Notifications.objects.create(user=rec.author, sender=f'articles/{rec.pk}/', n_type='Статья опубликована', content='Ваша статья была опубликована')
+            notification.save()
     modeladmin.message_user(request, 'Выбранные статьи активированы.')
     
 
