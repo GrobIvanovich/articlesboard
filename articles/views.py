@@ -45,10 +45,11 @@ def index(request):
                 last_articles += articles
         if len(last_articles) == 0:
             last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
+        context = {'last_articles': last_articles, 'notifications': notifications, 'my_articles': my_articles}
     else:
         last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
-    # Refreshing popular articles.
-    context = {'last_articles': last_articles, 'notifications': notifications, 'my_articles': my_articles}
+        # Refreshing popular articles.
+        context = {'last_articles': last_articles}
     return render(request, 'articles/index.html', context)
 
 
