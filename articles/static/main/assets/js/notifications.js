@@ -11,7 +11,7 @@ $(document).ready(function() {
             count++;
         });
     }).done(function() {
-	    console.log('Notifications: ' + count);
+	    // console.log('Notifications: ' + count);
 	    if (count > 0){
 	    	$('.notification').html(count);
 		}
