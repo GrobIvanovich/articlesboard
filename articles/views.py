@@ -24,6 +24,8 @@ import json
 from tagging.models import TaggedItem, Tag
 from tagging_autocomplete_new.models import TagAutocomplete
 
+from datetime import datetime
+
 from .models import AdvUser, Category, Article, Notifications
 from .forms import ARegisterUserForm, ChangeUserInfoForm, ArticleForm, ArticleFormSet
 from .forms import DeleteArticleForm, EditArticleForm, ChangeUserAdditionalInfoForm
@@ -32,9 +34,22 @@ from .utilities import signer
 
 # Main page view.
 def index(request):
-    last_articles = Article.objects.filter(is_active=True)
-    # Refreshing popular articles.
-    context = {'last_articles': last_articles}# 'site_name': SITE_NAME}
+    if request.user.is_authenticated:
+        subscriptions = request.user.user_subscriptions.all()
+        my_articles = Article.objects.filter(author=request.user, is_active=True).order_by('-created_at')[0:5]
+        last_articles = []
+        notifications = Notifications.objects.filter(user=request.user).order_by('-created_at')[0:5]
+        if len(subscriptions) > 0:
+            for sub in subscriptions:
+                articles = Article.objects.filter(author=sub, is_active=True).order_by('-created_at')[0:9]
+                last_articles += articles
+        if len(last_articles) == 0:
+            last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
+        context = {'last_articles': last_articles, 'notifications': notifications, 'my_articles': my_articles}
+    else:
+        last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
+        # Refreshing popular articles.
+        context = {'last_articles': last_articles}
     return render(request, 'articles/index.html', context)
 
 
@@ -72,9 +87,12 @@ def profile(request, username=None):
 
 # When user press rating button.
 @login_required
-def change_rating(request, rating, pk):
+def change_rating(request, rating: int, pk):
     article = Article.objects.get(pk=pk)
+    user = AdvUser.objects.get(username=article.author.username)
     if request.user not in article.rated_users.all():
+        user_articles = Article.objects.filter(author=user)
+        user.change_rating(rating, user_articles)
         article.change_rating(rating, request.user)
         messages.add_message(request, messages.SUCCESS, 'Спасибо! Ваш голос учтен.')
     else:
@@ -107,7 +125,8 @@ def subscribe_user(request, username):
     # If user not subscribed.
     if user not in request.user.user_subscriptions.all():
         request.user.subscribe_user(user)
-        update_user_notifications(request, user, 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
+        host_name = request.META.get('HTTP_HOST')
+        update_user_notifications(request, user, f'/accounts/profile/{request.user.username}', 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -170,7 +189,7 @@ def unsubscribe_category(request, category_name):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-# When user clicks on tag.
+# Show search by tag results. (When user clicks on tag).
 def search_by_tag(request, tag):
     articles = Article.objects.filter(tags__contains=tag)
     paginator = Paginator(articles, 9)
@@ -184,6 +203,7 @@ def search_by_tag(request, tag):
     return render(request, 'articles/search.html', context)
 
 
+# Shows search by category results. (When user clicks on category).
 def search_by_category(request, category_name):
     category = Category.objects.get(name=category_name)
     articles = Article.objects.filter(category=category)
@@ -197,6 +217,7 @@ def search_by_category(request, category_name):
     return render(request, 'articles/search.html', context)
 
 
+# AJAX based function for updating status message.
 @login_required
 def update_user_status(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
@@ -207,6 +228,7 @@ def update_user_status(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# AJAX based function for updating account_image_url.
 @login_required
 def update_account_image_url(request):
     user = get_object_or_404(AdvUser, pk=request.user.pk)
@@ -217,16 +239,24 @@ def update_account_image_url(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+# User calls this function when subscribe or unsubscribe on something.
 @login_required
-def update_user_notifications(request, user: AdvUser, n_type: str, msg: str):
-    ntf = Notifications.objects.create(user=user, n_type=n_type, content=msg)
+def update_user_notifications(request, user: AdvUser, sender: str, n_type: str, msg: str):
+    ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
     ntf.save()
 
 
+# AJAX calls this function periodically.
 def notify_user(request):
-    notifications = Notifications.objects.filter(user=request.user).values('n_type', 'content')
-    print(notifications)
-    ntf = json.dumps(list(notifications))
+    notifications = Notifications.objects.filter(user=request.user).order_by('-id')[0:4]
+    
+    # Convert notifications to JSON format.
+    ntf = json.dumps(list(notifications.values('n_type', 'content', 'sender', 'viewed', 'created_at')))
+    for n in notifications:
+        if not n.sent:
+            n.sent = True
+            n.save()
+
     return JsonResponse({'notifications': ntf})
 
 

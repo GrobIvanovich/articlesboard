@@ -9,7 +9,8 @@
 {% block page_title %}{{ user.username }}{% endblock %}
 
 {% block content %}
-<div class="col-md-4">
+{{ user.rating }}
+<div class="col-md-3">
 	<div class="card card-profile">
 		<div class="card-avatar" style="max-width: 200px; max-height: 250px">
 			<form method="post" enctype="multipart/form-data" id="pictureForm" onchange="submitIfFormComplete()">
@@ -318,7 +319,7 @@
 		});
 		var status = '';
 		var csrftoken = $('#id_csrf').children().val();
-		console.log(csrftoken);
+		// console.log(csrftoken);
 		$('#submitStatus').on('click', function() {
 			$('#submitStatus').slideUp('fast');
 			data = {
@@ -328,7 +329,7 @@
 			// alert(status);
 			$.post('{% url "articles:update_status" %}', data, function(data, status) {
 				// $('.content div.text-center').append('<div class="alert alert-success alert-dismissable fade show" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="close">×</button>Вы успешно вышли с сайта!</div>')
-				console.log('Status sent: ' + status);
+				// console.log('Status sent: ' + status);
 			});
 		});
 		$('#submitImageLink').click(function() {
@@ -340,7 +341,7 @@
 					csrfmiddlewaretoken: csrftoken
 				}
 				$.post('{% url "articles:update_image_url" %}', data, function(data, status) {
-					console.log('Image url sent status: ' + status);
+					// console.log('Image url sent status: ' + status);
 				});
 			}
 		});

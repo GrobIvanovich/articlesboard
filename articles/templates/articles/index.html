@@ -7,29 +7,67 @@
 
 {% block content %}
 {% for article in last_articles %}
-<div class="col-xl-4 col-lg-12">
-    <div class="card">
-        {% if article.image %}
-        <img class="card-header" src="{{ article.image.url }}">
-        {% elif article.image_url %}
-        <img class="card-header" src="{{ article.image_url }}">
-        {% endif %}
-        <!-- <div class="card-header card-header-success">
-        </div> -->
-        <div class="card-body">
-            <a href="{% url 'articles:article' pk=article.pk %}">
-                <h4 class="card-title">{{ article.title }}</h4>
-            </a>
-            <p class="card-category">
-            {{ article.card_text }}
-            <!-- <span class="text-success"> --><!-- <i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales. --></p>
+<!-- <div class="row"> --> <!-- In basic template -->
+    <div class="col-xl-4 col-lg-12">
+        <div class="card">
+            {% if article.image %}
+            <img class="card-header" src="{{ article.image.url }}">
+            {% elif article.image_url %}
+            <img class="card-header" src="{{ article.image_url }}">
+            {% endif %}
+            <!-- <div class="card-header card-header-success">
+            </div> -->
+            <div class="card-body">
+                <a href="{% url 'articles:article' pk=article.pk %}">
+                    <h4 class="card-title">{{ article.title }}</h4>
+                </a>
+                <p class="card-category">
+                {{ article.card_text }}
+                <!-- <span class="text-success"> --><!-- <i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales. --></p>
+            </div>
+            <div class="card-footer">
+                <div class="stats">
+                    <i class="material-icons">access_time</i> {{ article.created_at }}
+                </div>
+            </div>
         </div>
-        <div class="card-footer">
-            <div class="stats">
-                <i class="material-icons">access_time</i> {{ article.created_at }}
+    </div>
+{% endfor %}
+</div> <!-- Close the row from basic -->
+<div class="row">
+    <div class="col-xl-4 col-lg-12">
+        <div class="card">
+            <div class="card-header card-header-info">
+                <h4 class="card-title">
+                    События
+                </h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    {% for ntf in notifications %}
+                        <li><a href="{{ ntf.sender }}" class="btn btn-success">{{ ntf.n_type }}</a>{{ ntf.content }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-12">
+        <div class="card">
+            <div class="card-header card-header-info">
+                <h4 class="card-title">
+                    Мои статьи
+                </h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    {% for article in my_articles %}
+                        <li>
+                            <a href="{% url 'articles:article' pk=article.pk %}" class="btn btn-info">{{ article.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
 </div>
-{% endfor %}
 {% endblock %}
