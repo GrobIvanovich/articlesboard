@@ -26,8 +26,15 @@
                 <!-- <span class="text-success"> --><!-- <i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales. --></p>
             </div>
             <div class="card-footer">
-                <div class="stats">
-                    <i class="material-icons">access_time</i> {{ article.created_at }}
+                <div class="row w-100 justify-content-between">
+                    <div class="stats ml-3">
+                        <i class="material-icons">access_time</i> {{ article.created_at }}
+                    </div>
+                    {% if article.author.pk == request.user.pk %}
+                    <div style="text-align: right">
+                        <a href="{% url 'articles:edit_article' pk=article.pk %}">Редактировать</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -69,5 +76,5 @@
             </div>
         </div>
     </div>
-</div>
+<!-- </div> -->
 {% endblock %}

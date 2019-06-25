@@ -1,13 +1,14 @@
 $(document).ready(function() {
     $.ajaxSetup({ cache: false });
     var count = 0;
+    $('#notificationsList').html('');
     $.get('/accounts/profile/notifyuser', function(data) {
         // $('#notificationsBlock').html('<ul class="list-unstyled" id="notificationsList"></ul>');
         
         $.each($.parseJSON(data.notifications), function(index, element) {
         	// console.log(element.sender);
            
-            $('#notificationsList').append('<li><a class="btn btn-primary ntf" href="' + element.sender + '">' + element.n_type + '</a><div style="display:none" class="row">' + element.content + '</div></li>')
+            $('#notificationsList').append('<li><a class="btn btn-info ntf" href="' + element.sender + '"><font color="white">' + element.n_type + '</font></a><div style="display:none" class="row">' + element.content + '</div></li>')
             count++;
         });
     }).done(function() {
@@ -17,6 +18,7 @@ $(document).ready(function() {
 		}
 		else {
 			$('.notification').css('display', 'none');
+            $('#notificationsList').html('<h6 class="dropdown-item" style="cursor: default;">У вас нет новых оповещений</h6>');
 		}
 	});
 });
