@@ -15,8 +15,8 @@
             {% elif article.image_url %}
             <img class="card-header" src="{{ article.image_url }}">
             {% endif %}
-            <!-- <div class="card-header card-header-success">
-            </div> -->
+            <!-- <div class="card-header card-header-success"> -->
+            <!-- </div> -->
             <div class="card-body">
                 <a href="{% url 'articles:article' pk=article.pk %}">
                     <h4 class="card-title">{{ article.title }}</h4>

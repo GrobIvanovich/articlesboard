@@ -9,7 +9,7 @@ from .views import APasswordResetDoneView, APasswordResetConfirmView
 from .views import APasswordResetCompleteView, subscribe_user, unsubscribe_user
 from .views import search_by_tag, subscribe_tag, unsubscribe_tag, search_by_category
 from .views import subscribe_category, unsubscribe_category, update_user_status
-from .views import update_account_image_url, notify_user
+from .views import update_account_image_url, notify_user, set_notification_viewed
 
 app_name = 'articles'
 urlpatterns = [
@@ -27,7 +27,8 @@ urlpatterns = [
     path('accounts/register/activate/<str:sign>/', user_activate, name='register_activate'),
     path('accounts/register/done/', ARegisterDoneView.as_view(), name='register_done'),
     path('accounts/register/', ARegisterUserView.as_view(), name='register'),
-    path('accounts/profile/notifyuser', notify_user, name='notify_user'),
+    path('accounts/profile/setnotificationviewed/', set_notification_viewed, name='viewed_notification'),
+    path('accounts/profile/notifyuser/', notify_user, name='notify_user'),
     path('accounts/profile/updateimage/', update_account_image_url, name='update_image_url'),
     path('accounts/profile/updatestatus/', update_user_status, name='update_status'),
     path('accounts/profile/change/<str:username>', ChangeUserInfoView.as_view(), name='profile_change'),

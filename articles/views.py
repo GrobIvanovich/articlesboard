@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from articlesboard.settings import SITE_NAME
 from django.urls import reverse_lazy
 from django.core.signing import BadSignature
@@ -242,22 +242,39 @@ def update_account_image_url(request):
 # User calls this function when subscribe or unsubscribe on something.
 @login_required
 def update_user_notifications(request, user: AdvUser, sender: str, n_type: str, msg: str):
-    ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
-    ntf.save()
+    if len(list(Notifications.objects.filter(user=user, sender=sender, n_type=n_type, content=msg))) == 0:
+        ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
 
 
 # AJAX calls this function periodically.
 def notify_user(request):
-    notifications = Notifications.objects.filter(user=request.user).order_by('-id')[0:4]
-    
+    notifications = Notifications.objects.filter(user=request.user, viewed=False).order_by('-id')[0:4]
     # Convert notifications to JSON format.
     ntf = json.dumps(list(notifications.values('n_type', 'content', 'sender', 'viewed', 'created_at')))
     for n in notifications:
+        counter = 0
+        obj = None
+        for n_temp in notifications:
+            if n.content == n_temp.content:
+                obj = n
+                if counter > 0:
+                    n.delete()
         if not n.sent:
             n.sent = True
             n.save()
 
     return JsonResponse({'notifications': ntf})
+
+
+@login_required
+def set_notification_viewed(request):
+    notifications = Notifications.objects.filter(user=request.user, viewed=False).order_by('-id')[0:4]
+    
+    for ntf in notifications:
+        ntf.viewed = True
+        ntf.save()
+        
+    return HttpResponse('OK')
 
 
 # Add article page view.
