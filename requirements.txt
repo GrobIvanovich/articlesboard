@@ -5,6 +5,7 @@ Django==2.2.2
 django-bootstrap4==0.0.8
 django-countries==5.3.3
 django-heroku==0.3.1
+django-selectable==1.2.1
 django-tagging==0.4.6
 django-tagging-autocomplete-new==0.6.2
 django-widget-tweaks==1.4.5
