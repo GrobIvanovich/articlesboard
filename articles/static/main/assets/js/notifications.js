@@ -2,9 +2,12 @@ $(document).ready(function() {
     $.ajaxSetup({ cache: false });
     var get_data = function() {
         var count = 0;
-        $('#notificationsList').html('');
         $.get('/accounts/profile/notifyuser', function(data) {
             // console.log('get data');
+            var notifications = $.parseJSON(data.notifications);
+            if (notifications){
+                $('#notificationsList').html('');
+            }
             $.each($.parseJSON(data.notifications), function(index, element) {
                 if (!element.viewed) {
                     $('#notificationsList').append('<li><a class="btn btn-info ntf " href="' + element.sender + '"><font color="white">' + element.n_type + '</font></a><div style="display:none" class="row">' + element.content + '</div></li>')

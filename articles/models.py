@@ -134,7 +134,7 @@ class Notifications(models.Model):
     created_at = models.CharField(default='', max_length=30, verbose_name='Дата создания уведомления')
     content = models.CharField(max_length=50, default='', verbose_name='Содержимое')
     viewed = models.BooleanField(default=False, verbose_name='Просмотрено')
-    n_type = models.CharField(max_length=20, default='', verbose_name='Название')
+    n_type = models.CharField(max_length=40, default='', verbose_name='Название')
     sent = models.BooleanField(default=False, verbose_name='Было ли это уведомление отправлено пользователю?')
     
     class Meta:

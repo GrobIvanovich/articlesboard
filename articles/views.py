@@ -125,7 +125,6 @@ def subscribe_user(request, username):
     # If user not subscribed.
     if user not in request.user.user_subscriptions.all():
         request.user.subscribe_user(user)
-        host_name = request.META.get('HTTP_HOST')
         update_user_notifications(request, user, f'/accounts/profile/{request.user.username}', 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
@@ -139,7 +138,7 @@ def unsubscribe_user(request, username):
     # If user already subscribed.
     if user in request.user.user_subscriptions.all():
         request.user.unsubscribe_user(user)
-        # notificate_user(user, f'{request.user.username} отписался от Ваших обновлений!')
+        update_user_notifications(request=request, user=user, sender=request.user.username, n_type='Пользователь отменил подписку.', msg=f'{request.user.username} отписался от Ваших обновлений!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы не подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -243,7 +242,7 @@ def update_account_image_url(request):
 @login_required
 def update_user_notifications(request, user: AdvUser, sender: str, n_type: str, msg: str):
     if len(list(Notifications.objects.filter(user=user, sender=sender, n_type=n_type, content=msg))) == 0:
-        ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
+        Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
 
 
 # AJAX calls this function periodically.
