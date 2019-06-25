@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from articlesboard.settings import SITE_NAME
 from django.urls import reverse_lazy
 from django.core.signing import BadSignature
@@ -45,10 +45,11 @@ def index(request):
                 last_articles += articles
         if len(last_articles) == 0:
             last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
+        context = {'last_articles': last_articles, 'notifications': notifications, 'my_articles': my_articles}
     else:
         last_articles = Article.objects.filter(is_active=True).order_by('-created_at')[0:9]
-    # Refreshing popular articles.
-    context = {'last_articles': last_articles, 'notifications': notifications, 'my_articles': my_articles}
+        # Refreshing popular articles.
+        context = {'last_articles': last_articles}
     return render(request, 'articles/index.html', context)
 
 
@@ -124,7 +125,6 @@ def subscribe_user(request, username):
     # If user not subscribed.
     if user not in request.user.user_subscriptions.all():
         request.user.subscribe_user(user)
-        host_name = request.META.get('HTTP_HOST')
         update_user_notifications(request, user, f'/accounts/profile/{request.user.username}', 'Новый подписчик!', f'{request.user.username} теперь подписан на вас!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы уже подписаны на этого пользователя!')
@@ -138,7 +138,7 @@ def unsubscribe_user(request, username):
     # If user already subscribed.
     if user in request.user.user_subscriptions.all():
         request.user.unsubscribe_user(user)
-        # notificate_user(user, f'{request.user.username} отписался от Ваших обновлений!')
+        update_user_notifications(request=request, user=user, sender=request.user.username, n_type='Пользователь отменил подписку.', msg=f'{request.user.username} отписался от Ваших обновлений!')
     else:
         messages.add_message(request, messages.WARNING, 'Вы не подписаны на этого пользователя!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -241,22 +241,39 @@ def update_account_image_url(request):
 # User calls this function when subscribe or unsubscribe on something.
 @login_required
 def update_user_notifications(request, user: AdvUser, sender: str, n_type: str, msg: str):
-    ntf = Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
-    ntf.save()
+    if len(list(Notifications.objects.filter(user=user, sender=sender, n_type=n_type, content=msg))) == 0:
+        Notifications.objects.create(user=user, sender=sender, n_type=n_type, content=msg, created_at=datetime.now().strftime('%H:%M:%S %m/%d/%Y'))
 
 
 # AJAX calls this function periodically.
 def notify_user(request):
-    notifications = Notifications.objects.filter(user=request.user).order_by('-id')[0:4]
-    
+    notifications = Notifications.objects.filter(user=request.user, viewed=False).order_by('-id')[0:4]
     # Convert notifications to JSON format.
     ntf = json.dumps(list(notifications.values('n_type', 'content', 'sender', 'viewed', 'created_at')))
     for n in notifications:
+        counter = 0
+        obj = None
+        for n_temp in notifications:
+            if n.content == n_temp.content:
+                obj = n
+                if counter > 0:
+                    n.delete()
         if not n.sent:
             n.sent = True
             n.save()
 
     return JsonResponse({'notifications': ntf})
+
+
+@login_required
+def set_notification_viewed(request):
+    notifications = Notifications.objects.filter(user=request.user, viewed=False).order_by('-id')[0:4]
+    
+    for ntf in notifications:
+        ntf.viewed = True
+        ntf.save()
+        
+    return HttpResponse('OK')
 
 
 # Add article page view.

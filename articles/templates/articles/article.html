@@ -5,6 +5,7 @@
 {% block title %}{{ article.title }} - {{ article.category.name }}{% endblock %}
 
 {% block content%}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.js"></script>
 <a href="{% url 'articles:change_rating' rating=5 pk=article.pk %}">+5</a>
 <div class="card text-center">
 	<div class="card-header">
@@ -22,18 +23,29 @@
 			</h4>
 		</div>
 		<h4 class="h2 card-category">{{ article.title }}</h4>
-		<div class="h4 text-center" style="text-align: justify">
-			{{ article.content }}
-		</div>
+
+		<!-- Markdown content converted to HTML -->
+		<div class="mdhtmlform-html" style="text-align: justify;"></div>
+
 		<div class="row">
 			<div class="col">
 				Автор: <a class="btn btn-sm" href="{% url 'articles:profile' username=article.author %}">{{ article.author }}</a>
 			</div>
+			{% if article.author.pk == request.user.pk %}
+			<div class="col">
+				<a href="{% url 'articles:edit_article' pk=article.pk %}" class="btn btn-sm btn-primary">Редактировать</a>
+			</div>
+			{% endif %}
 			<div class="col">
 				Опубликовано: <a class="btn btn-sm" href="#">{{ article.created_at }}</a>
 			</div>
 		</div>
 	</div>
 </div>
-
+<script type="text/javascript">
+	var content = `{{ article.content }}`;
+	var converter = new showdown.Converter();
+	var html = converter.makeHtml(content);
+	$('.mdhtmlform-html').html(html);
+</script>
 {% endblock %}
