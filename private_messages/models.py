@@ -3,8 +3,8 @@ from articles.models import AdvUser
 
 
 class Message(models.Model):
-    sender = models.ForeignKey(AdvUser, on_delete=models.PROTECT, default=None, verbose_name='Отправитель', related_name='sender')
-    receiver = models.ForeignKey(AdvUser, on_delete=models.PROTECT, default=None, verbose_name='Получатель', related_name='receiver')
+    sender = models.CharField(max_length=50, default='', verbose_name='Отправитель')
+    receiver = models.CharField(max_length=50, default='', verbose_name='Получатель')
     message = models.TextField(verbose_name='Текст сообщения')
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Дата отправления')
     

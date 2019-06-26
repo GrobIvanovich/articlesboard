@@ -1,0 +1,40 @@
+{% extends 'layout/basic.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+
+{% block title %}Личные сообщения{% endblock %}
+{% block page_title %}Сообщения{% endblock %}
+
+{% block content %}
+<div class="card">
+	<div class="card-header card-header-info">
+		<div class="row justify-content-between px-5">
+			<!-- <div class="col"> -->
+				<h4 class="card-title">Личные сообщения</h4>
+			<!-- </div> -->
+			<!-- <div class="col"> -->
+			<!-- </div> -->
+		</div>
+	</div>
+	<div class="card-body">
+		<a href="{% url 'private_messages:create_message' %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
+		<div class="table-responsive">
+			{% for receiver, content in private_messages.items %}
+				<table class="table table-hover">
+					<tbody>
+						<tr>
+							<td>
+								{{ receiver }}
+							</td>
+							<td>
+								{{ content.message }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
