@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from companies.models import Company
+# from private_messages.models import Message
 
 from django_countries.fields import CountryField
 from tagging.models import Tag
@@ -67,6 +68,8 @@ class AdvUser (AbstractUser):
     status = models.CharField(default='', blank=True, max_length=200, verbose_name='Статус')
     company = models.ForeignKey(Company, default=None, blank=True, null=True, on_delete=models.PROTECT, verbose_name='Компания')
     activity = models.CharField(max_length=100, default='', blank=True, verbose_name='Деятельность')
+    
+    # messages = models.ManyToManyField(Message, related_name='messages')
     
     account_image = models.ImageField(blank=True, null=True, upload_to=get_image_path, verbose_name='Изображение профиля', help_text='Лучше всего подобрать картинку с соотношением сторон 4:3.')
     account_image_url = models.URLField(default="", blank=True, verbose_name='Ссылка на изображение профиля', help_text='Вы можете либо загрузить картинку, либо вставить ссылку на нее.')

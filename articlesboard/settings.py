@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+    'private_messages.apps.PrivateMessagesConfig',
     'companies.apps.CompaniesConfig',
     'articles.apps.ArticlesConfig',
     'bootstrap4',
