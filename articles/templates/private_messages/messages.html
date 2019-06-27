@@ -7,33 +7,45 @@
 {% block page_title %}Сообщения{% endblock %}
 
 {% block content %}
-<div class="card">
-	<div class="card-header card-header-info">
-		<div class="row justify-content-between px-5">
-			<!-- <div class="col"> -->
-				<h4 class="card-title">Личные сообщения</h4>
-			<!-- </div> -->
-			<!-- <div class="col"> -->
-			<!-- </div> -->
+<div class="col-4">
+	<div class="card">
+		<div class="card-header card-header-info">
+			<div class="row justify-content-between px-5">
+				<!-- <div class="col"> -->
+					<h4 class="card-title">Личные сообщения</h4>
+				<!-- </div> -->
+				<!-- <div class="col"> -->
+				<!-- </div> -->
+			</div>
+		</div>
+		<div class="card-body">
+			<a href="{% url 'private_messages:create_message' %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
+			<div class="table-responsive">
+				{% for receiver, content in dialogs.items %}
+					<table class="table table-hover">
+						<tbody>
+							<tr>
+								<td>
+									{{ receiver }}
+								</td>
+								<td>
+									{{ content.message }}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				{% endfor %}
+			</div>
 		</div>
 	</div>
-	<div class="card-body">
-		<a href="{% url 'private_messages:create_message' %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
-		<div class="table-responsive">
-			{% for receiver, content in private_messages.items %}
-				<table class="table table-hover">
-					<tbody>
-						<tr>
-							<td>
-								{{ receiver }}
-							</td>
-							<td>
-								{{ content.message }}
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			{% endfor %}
+</div>
+<div class="col">
+	<div class="card">
+		<div class="card-header card-header-info">
+			<h4 class="card-title">Диалог</h4>
+		</div>
+		<div class="card-body">
+			
 		</div>
 	</div>
 </div>

@@ -4,11 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.db.models import Q
 import json
 
 
 from articles.models import AdvUser
-from .models import Message
+from .models import Message, Dialog
 from .forms import CreateMessageForm
 
 
@@ -35,7 +36,8 @@ class CreateMessageView(CreateView, LoginRequiredMixin):
         user = get_object_or_404(AdvUser, username=self.request.POST['receiver'])
         if form.is_valid():
             print('valid')
-            Message.objects.create(sender=self.request.user.username, receiver=user.username, message=self.request.POST['message'])
+            dl = Dialog.objects.filter(members__contains=self.request.user.username)
+            Message.objects.create(dialog=dl, sender=self.request.user.username, receiver=user.username, message=self.request.POST['message'])
             # messages.add_message(self.request, messages.SUCCESS, 'Сообщение успешно отправлено')
             
         else:
@@ -57,13 +59,22 @@ class MessageView(CreateView, UpdateView, LoginRequiredMixin):
     model = Message
     
     def get(self, *args, **kwargs):
-        messages = Message.objects.filter(sender=self.request.user).order_by('-created_at')
-        grouped_messages = dict()
+        messages = Message.objects.filter(Q(receiver=self.request.user.username) | Q(sender=self.request.user.username)).order_by('-created_at')
+        dialogs = dict()
         for msg in messages:
-            if msg.receiver in grouped_messages.keys():
-                grouped_messages[msg.receiver] = msg
+            if msg.receiver in dialogs.keys():
+                dialogs[msg.receiver].append(msg)
             else:
-                grouped_messages[msg.receiver] = msg
-        context = {'private_messages': grouped_messages}
+                dialogs[msg.receiver] = msg
+        context = {'dialogs': dialogs}
         
         return render(self.request, self.template_name, context=context)
+
+
+class DialogView(CreateView, UpdateView, LoginRequiredMixin):
+    
+    template_name = 'private_messages/dialog.html'
+    model = Message
+    
+    def get(self, *args, **kwargs):
+        messages = Message.objects.filter(sender=self.request.user).order_by('-created_at')
