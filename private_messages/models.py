@@ -2,8 +2,9 @@ from django.db import models
 from articles.models import AdvUser
 from datetime import datetime
 
+
 class Dialog(models.Model):
-    members = models.ManyToManyField(AdvUser, 'dialogs', blank=True, verbose_name='Диалог')
+    members = models.ManyToManyField(AdvUser, related_name='members', blank=True, verbose_name='Диалог')
 
 
 class Message(models.Model):
@@ -16,3 +17,6 @@ class Message(models.Model):
     class Meta:
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'
+
+
+    # content = models.ManyToManyField(Message, 'content', blank=True, verbose_name='Сообщения')    

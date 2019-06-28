@@ -35,16 +35,31 @@ class CreateMessageView(CreateView, LoginRequiredMixin):
         form = CreateMessageForm(self.request.POST)
         user = get_object_or_404(AdvUser, username=self.request.POST['receiver'])
         if form.is_valid():
-            print('valid')
-            dl = Dialog.objects.filter(members__contains=self.request.user.username)
+            # print('valid')
+            dl = Dialog()
+            try:
+                dl = Dialog.objects.prefetch_related('members').filter(members=user).filter(members=self.request.user).distinct()
+                print(dl)
+                if len(dl) == 0:
+                    raise Dialog.DoesNotExist
+                else:
+                    print(f'Exists -- {dl}')
+                    dl = dl[0]
+
+            except Dialog.DoesNotExist:
+                users = AdvUser.objects.filter(Q(username=self.request.user.username) | Q(username=user.username))
+                print(f'Not exists -- {users}')
+                instance = Dialog.objects.create()
+                instance.members.add(*users)
+                dl = instance
+                
             Message.objects.create(dialog=dl, sender=self.request.user.username, receiver=user.username, message=self.request.POST['message'])
-            # messages.add_message(self.request, messages.SUCCESS, 'Сообщение успешно отправлено')
+
             
         else:
-            # messages.add_message(self.request, messages.ERROR, 'Форма не валидна')
-            return redirect('private_messages:messages')
+            return redirect('private_messages:dialogs')
         
-        return HttpResponseRedirect(reverse_lazy('private_messages:messages'))
+        return HttpResponseRedirect(reverse_lazy('private_messages:dialogs'))
         
     class Meta:
         model = Message
@@ -55,17 +70,17 @@ class CreateMessageView(CreateView, LoginRequiredMixin):
 # Add getting messages not only by a sender field.
 class MessageView(CreateView, UpdateView, LoginRequiredMixin):
     
-    template_name = 'private_messages/messages.html'
+    template_name = 'private_messages/dialogs.html'
     model = Message
     
     def get(self, *args, **kwargs):
         messages = Message.objects.filter(Q(receiver=self.request.user.username) | Q(sender=self.request.user.username)).order_by('-created_at')
         dialogs = dict()
         for msg in messages:
-            if msg.receiver in dialogs.keys():
-                dialogs[msg.receiver].append(msg)
-            else:
-                dialogs[msg.receiver] = msg
+            # if msg.receiver in dialogs.keys():
+                # dialogs[msg.receiver].msg)
+            # else:
+            dialogs[msg.receiver] = msg
         context = {'dialogs': dialogs}
         
         return render(self.request, self.template_name, context=context)

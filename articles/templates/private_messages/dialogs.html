@@ -21,9 +21,9 @@
 		<div class="card-body">
 			<a href="{% url 'private_messages:create_message' %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
 			<div class="table-responsive">
-				{% for receiver, content in dialogs.items %}
-					<table class="table table-hover">
+				<table class="table table-hover">
 						<tbody>
+				{% for receiver, content in dialogs.items %}
 							<tr>
 								<td>
 									{{ receiver }}
@@ -32,9 +32,9 @@
 									{{ content.message }}
 								</td>
 							</tr>
+				{% endfor %}
 						</tbody>
 					</table>
-				{% endfor %}
 			</div>
 		</div>
 	</div>
