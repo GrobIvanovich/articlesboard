@@ -23,13 +23,17 @@
 			<div class="table-responsive">
 				<table class="table table-hover">
 						<tbody>
-				{% for receiver, content in dialogs.items %}
+				{% for dlg in dialogs %}
 							<tr>
 								<td>
-									{{ receiver }}
+									{% if request.user.username == dlg.receiver %}
+										{{ dlg.sender }}
+									{% else %}
+										{{ dlg.receiver }}
+									{% endif %}
 								</td>
 								<td>
-									{{ content.message }}
+									{{ dlg.message }}
 								</td>
 							</tr>
 				{% endfor %}

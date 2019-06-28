@@ -38,7 +38,12 @@ class CreateMessageView(CreateView, LoginRequiredMixin):
             # print('valid')
             dl = Dialog()
             try:
-                dl = Dialog.objects.prefetch_related('members').filter(members=user).filter(members=self.request.user).distinct()
+                # If message was sent to other user.
+                if self.request.user.__ne__(user):
+                    dl = Dialog.objects.prefetch_related('members').filter(members=user).filter(members=self.request.user).distinct()
+                # If message was sent to yourself.
+                else:
+                    dl = Dialog.objects.prefetch_related('members').filter(message__sender=self.request.user).filter(message__receiver=user).distinct()
                 print(dl)
                 if len(dl) == 0:
                     raise Dialog.DoesNotExist
@@ -75,15 +80,8 @@ class MessageView(CreateView, UpdateView, LoginRequiredMixin):
     
     def get(self, *args, **kwargs):
         messages = Message.objects.filter(Q(receiver=self.request.user.username) | Q(sender=self.request.user.username)).order_by('-created_at')
-        dialogs = dict()
-        for msg in messages:
-            # if msg.receiver in dialogs.keys():
-                # dialogs[msg.receiver].msg)
-            # else:
-            dialogs[msg.receiver] = msg
-        context = {'dialogs': dialogs}
-        
-        return render(self.request, self.template_name, context=context)
+                
+        return render(self.request, self.template_name, context={'dialogs': messages})
 
 
 class DialogView(CreateView, UpdateView, LoginRequiredMixin):
