@@ -11,34 +11,28 @@
 	<div class="card">
 		<div class="card-header card-header-info">
 			<div class="row justify-content-between px-5">
-				<!-- <div class="col"> -->
-					<h4 class="card-title">Личные сообщения</h4>
-				<!-- </div> -->
-				<!-- <div class="col"> -->
-				<!-- </div> -->
+				<h4 class="card-title">Личные сообщения</h4>
 			</div>
 		</div>
 		<div class="card-body">
-			<a href="{% url 'private_messages:create_message' %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
+			<a href="{% comment %}{% url 'private_messages:create_message' %}{% endcomment %}" class="btn btn-sm btn-success pb-1">Новое сообщение</a>
+			<h4 class="card-category">Текущие диалоги</h4>
 			<div class="table-responsive">
 				<table class="table table-hover">
-						<tbody>
-				{% for dlg in dialogs %}
-							<tr>
+					<tbody>
+						{% for dlg in dialogs %}
+							<tr class="dialogs" id="{{ dlg.id }}" style="cursor: pointer;">
 								<td>
-									{% if request.user.username == dlg.receiver %}
-										{{ dlg.sender }}
-									{% else %}
-										{{ dlg.receiver }}
-									{% endif %}
-								</td>
-								<td>
-									{{ dlg.message }}
+									{% for user in dlg.members.all %}
+										{% if not user == request.user %}
+											{{ user.username }}
+										{% endif %}
+									{% endfor %}
 								</td>
 							</tr>
-				{% endfor %}
-						</tbody>
-					</table>
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -48,9 +42,29 @@
 		<div class="card-header card-header-info">
 			<h4 class="card-title">Диалог</h4>
 		</div>
-		<div class="card-body">
-			
+		<div class="card-body" id="dialogWindow">
+
 		</div>
 	</div>
 </div>
+{% csrf_token %}
+<script type="text/javascript">
+	// Get messages from dialog.
+	$(document).ready(function() {
+		$('.dialogs').on('click', function() {
+			window.selectedDialog = $(this).attr('id');
+			$.get(
+				'dialog/' + $(this).attr('id'),
+				function() {
+					$('#dialogWindow').html('Loading...');
+				}
+			).done(function(data) {
+				$('#dialogWindow').html(data);
+			}).fail(function() {
+				$('dialogWindow').html('Произошла ошибка во время выполнения запроса.');
+			});
+		});
+	});
+</script>
+
 {% endblock %}

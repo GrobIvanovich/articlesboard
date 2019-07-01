@@ -1,0 +1,75 @@
+<div class="table-responsive" id="id_messages">
+	<table class="table table-hover">
+		<tbody>
+			{% for msg in user_messages.all %}
+				{% if dialog == msg.dialog %}
+					<tr style="cursor: pointer;">
+						<td>
+							{{ msg.sender }}
+						</td>
+						<td>
+							{{ msg.message }}
+						</td>
+						<td>
+							{{ msg.created_at }}
+						</td>
+					</tr>
+				{% endif %}
+			{% endfor %}
+		</tbody>
+	</table>
+	<form method="post" id="id_message_form">
+		{% csrf_token %}
+		{{ form.sender }}
+		{{ users.sender }}
+		<input type="hidden" name="receiver" id="id_receiver" value="{% if users.sender == request.user.username %}{{ users.receiver }}{% else %}{{ users.sender }}{% endif %}">
+		<textarea type="text" id="id_message" name="message" class="form-control" placeholder="Введите сообщение..."></textarea>
+		<a class="btn btn-success" id="sendMessageBtn" style="display: none">Отправить</a>
+	</form>
+</div>
+<!-- <div class="modal"> --><!-- Place at bottom of page --><!-- </div> -->
+<script type="text/javascript">
+	// Loading animation
+	// $('#id_messages').ajaxStart(function() {
+	// 	$('#id_messages').addClass('loading');
+	// 	console.log('loading');
+	// }).ajaxStop(function() {
+	// 		$('#id_messages').removeClass('loading');
+	// 		console.log('stop loading');
+	// });
+
+	$('#id_message').on('focus', function() {
+		$('#sendMessageBtn').slideDown('normal');
+		// $('#id_message').on('input', function(e) {
+		// 	if (e.enterKey){
+		// 		console.log('sent');
+		// 	}
+		// });
+	});
+	$('#id_message').on('blur', function() {
+		if ($('#id_message').val().length == 0){
+			$('#sendMessageBtn').slideUp('normal');
+		}
+	});
+	$('#sendMessageBtn').on('click', function() {
+		var post_data = {
+			csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+			dlg_id: window.selectedDialog,
+			message: $('#id_message').val(),
+			sender: $('#id_sender').val(),
+			receiver: $('#id_receiver').val()
+		}
+		$.post(
+			'dialog/' + window.selectedDialog + '/', 
+			post_data,
+			function(){
+				$('#dialogWindow').html('Loading...');
+				// console.log(data);
+			}
+		).done(function(data) {
+			$('#dialogWindow').html(data);
+		}).fail(function() {
+			$('#dialogWindow').html('Произошла ошибка при загрузке сообщений.');
+		});
+	});
+</script>
